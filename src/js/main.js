@@ -39,3 +39,15 @@ elements.searchForm.addEventListener('submit', e => {
   e.preventDefault();
   searchControl();
 });
+
+// event handler for pagination
+elements.pagination.addEventListener('click', e => {
+  let btn = e.target.closest('.btn-inline');
+
+  if(btn) {
+    const gotToPage = parseInt(btn.dataset.goto, 10);
+    SearchView.clearResult();
+    SearchView.clearPagination();
+    SearchView.renderResult(state.search.result, gotToPage);
+  }
+});

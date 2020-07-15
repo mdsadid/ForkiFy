@@ -1,7 +1,8 @@
 export const elements = {
   searchForm: document.querySelector('.search'),
   searchInput: document.querySelector('.search__field'),
-  searchResult: document.querySelector('.results__list')
+  searchResult: document.querySelector('.results__list'),
+  pagination: document.querySelector('.results__pages')
 };
 
 export const renderLoader = () => {
