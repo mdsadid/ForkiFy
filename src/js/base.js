@@ -2,10 +2,15 @@ export const elements = {
   searchForm: document.querySelector('.search'),
   searchInput: document.querySelector('.search__field'),
   searchResult: document.querySelector('.results__list'),
-  pagination: document.querySelector('.results__pages')
+  pagination: document.querySelector('.results__pages'),
+  recipe: document.querySelector('.recipe')
 };
 
-export const renderLoader = () => {
+/**
+ * i have to select the parent element and pass the parent element to this function
+ * so that, the renderLoader function works correctly.
+ */
+export const renderLoader = parent => {
   const loader = `
     <div class="loader">
       <svg>
@@ -14,7 +19,7 @@ export const renderLoader = () => {
     </div>
   `;
 
-  document.querySelector('.results').insertAdjacentHTML('afterbegin', loader);
+  parent.insertAdjacentHTML('afterbegin', loader);
 };
 
 export const clearLoader = () => {

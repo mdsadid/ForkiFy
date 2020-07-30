@@ -12,6 +12,15 @@ export const clearPagination = () => {
   elements.pagination.innerHTML = '';
 };
 
+export const highlightSelected = id => {
+  const notSelectedRecipes = Array.from(document.querySelectorAll('.results__link'));
+  notSelectedRecipes.forEach(recipe => {
+    recipe.classList.remove('results__link--active');
+  });
+  
+  document.querySelector(`a[href="#${id}"]`).classList.add('results__link--active');
+};
+
 /**
  * Example: "Pizza with tomato and spinach"
  * after split method execute there will be an array containing
