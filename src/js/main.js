@@ -1,10 +1,13 @@
-// This is Controller of this App
+// This is The Controller of This App
 
 import Search from './models/Search';
 import * as SearchView from './views/SearchView';
 
 import Recipe from './models/Recipe';
 import * as RecipeView from './views/RecipeView';
+
+import List from './models/List';
+import * as ListView from './views/ListView';
 
 import { elements, renderLoader, clearLoader } from './base';
 
@@ -16,6 +19,7 @@ import { elements, renderLoader, clearLoader } from './base';
  * - Liked Receipes
 */
 const state = {};
+window.state = state;
 
 /**
  * Search Controller
@@ -34,6 +38,7 @@ const searchControl = async () => {
   SearchView.clearResult();
   SearchView.clearPagination();
   RecipeView.clearResult();
+  ListView.clearList();
   renderLoader(document.querySelector('.results'));
 
   // 4. Search for the receipes
@@ -43,6 +48,9 @@ const searchControl = async () => {
   clearLoader();
   SearchView.renderResult(state.search.result);
 };
+/**
+ * End Of Search Controller
+ */
 
 // Initial
 elements.searchForm.addEventListener('submit', e => {
@@ -72,6 +80,7 @@ const recipeControl = async () => {
   if(id) {
     // 1. Prepare or Reset UI for view
     RecipeView.clearResult();
+    ListView.clearList();
     renderLoader(document.querySelector('.recipe'));
 
     // 2. Create a new Recipe object
@@ -94,10 +103,53 @@ const recipeControl = async () => {
     SearchView.highlightSelected(id);
   }
 };
+/**
+ * End Of Recipe Controller
+ */
 
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, recipeControl));
 
-// Handling Plus and Minus button click
+/**
+ * List Controller
+ */
+const listControl = () => {
+  // 1. Create a new list if there has none yet
+  if (!state.list) {
+    state.list = new List();
+  }
+
+  // 2. Add all the ingredients in that shopping list
+  state.recipe.ingredients.forEach(el => {
+    const item = state.list.addItem(el.count, el.unit, el.ingredient);
+    ListView.renderItem(item);
+  });
+};
+/**
+ * End Of List Controller
+ */
+
+// Handle the update and delete events of list items
+elements.shoppingList.addEventListener('click', e => {
+  // first, get the id of that particular item
+  const id = e.target.closest('.shopping__item').dataset.itemid;
+
+  // handle the delete event
+  if (e.target.matches('.shopping__delete, .shopping__delete *')) {
+    // delete from state
+    state.list.deleteItem(id);
+
+    // delete from user interface
+    ListView.deleteItem(id);
+  } else if (e.target.matches('.shopping__count-value')) {
+    // handle the update event
+    const val = parseFloat(e.target.value, 10);
+    if (val > 0) {
+      state.list.updateCount(id, val);
+    }
+  }
+});
+
+// Handling Plus, Minus and Add To button click
 elements.recipe.addEventListener('click', e => {
   if (e.target.matches('.btn-decrease, .btn-decrease *')) {
     // decrease button has clicked
@@ -109,6 +161,8 @@ elements.recipe.addEventListener('click', e => {
     // increase button has clicked
     state.recipe.updateServings('inc');
     RecipeView.updateServingsAndIngredients(state.recipe);
+  } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
+    // add to shopping list button has clicked
+    listControl();
   }
-  console.log(state.recipe);
 });
