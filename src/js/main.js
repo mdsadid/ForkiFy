@@ -9,6 +9,9 @@ import * as RecipeView from './views/RecipeView';
 import List from './models/List';
 import * as ListView from './views/ListView';
 
+import Like from './models/Like';
+import * as LikeView from './views/LikeView';
+
 import { elements, renderLoader, clearLoader } from './base';
 
 /** 
@@ -20,6 +23,7 @@ import { elements, renderLoader, clearLoader } from './base';
 */
 const state = {};
 window.state = state;
+
 
 /**
  * Search Controller
@@ -48,15 +52,14 @@ const searchControl = async () => {
   clearLoader();
   SearchView.renderResult(state.search.result);
 };
-/**
- * End Of Search Controller
- */
+
 
 // Initial
 elements.searchForm.addEventListener('submit', e => {
   e.preventDefault();
   searchControl();
 });
+
 
 // Event handler for pagination
 elements.pagination.addEventListener('click', e => {
@@ -69,6 +72,7 @@ elements.pagination.addEventListener('click', e => {
     SearchView.renderResult(state.search.result, gotToPage);
   }
 });
+
 
 /**
  * Recipe Controller
@@ -96,18 +100,19 @@ const recipeControl = async () => {
 
     // 5. Render recipe
     clearLoader();
-    RecipeView.renderRecipe(state.recipe);
-    // console.log(state.recipe);
+    RecipeView.renderRecipe(
+      state.recipe,
+      state.like.isLiked(id)
+    );
 
     // 6. Highlight the selected recipe
     SearchView.highlightSelected(id);
   }
 };
-/**
- * End Of Recipe Controller
- */
+
 
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, recipeControl));
+
 
 /**
  * List Controller
@@ -124,9 +129,7 @@ const listControl = () => {
     ListView.renderItem(item);
   });
 };
-/**
- * End Of List Controller
- */
+
 
 // Handle the update and delete events of list items
 elements.shoppingList.addEventListener('click', e => {
@@ -149,7 +152,72 @@ elements.shoppingList.addEventListener('click', e => {
   }
 });
 
-// Handling Plus, Minus and Add To button click
+
+/**
+ * Like Controller
+ */
+const likeControl = () => {
+  if (!state.like) {
+    state.like = new Like();
+  }
+
+  const currentID = state.recipe.id;
+
+  // User has not liked this recipe yet, so now if user like this recipe
+  if (!state.like.isLiked(currentID)) {
+    // add like to the state
+    const newLike = state.like.addLike(
+      currentID,
+      state.recipe.title,
+      state.recipe.img,
+      state.recipe.publisher
+    );
+
+    // toggle the like button
+    LikeView.toggleLikeBtn(true);
+
+    // add liked recipes to user interface list
+    LikeView.renderLikes(newLike);
+
+  } else { // User has liked this recipe, but now if user remove like from this recipe
+
+    // remove like from the state
+    state.like.deleteLike(currentID);
+
+    // toggle the like button
+    LikeView.toggleLikeBtn(false);
+
+    // remove liked recipes from the UI
+    LikeView.deleteLikes(currentID);
+  }
+
+  LikeView.toggleLikeMenu(state.like.getNumberOfLikes());
+};
+
+
+// Restore the liked recipes on page load or even after reload
+window.addEventListener('load', () => {
+  // 1. create a new like object
+  state.like = new Like();
+
+  // 2. restore the liked recipes
+  state.like.readStorage();
+
+  // 3. show the like menu if any liked recipe exists
+  LikeView.toggleLikeMenu(state.like.getNumberOfLikes());
+
+  /**
+   * 4. render the existing liked recipes
+   * here 'like' is the object of 'Like' class
+   * and 'likes' is the array of that 'like' obj, basically it's a property of that obj
+   */
+  state.like.likes.forEach(like => {
+    LikeView.renderLikes(like);
+  });
+});
+
+
+// Handling Click Event Of Plus, Minus, Add To List and Like Button
 elements.recipe.addEventListener('click', e => {
   if (e.target.matches('.btn-decrease, .btn-decrease *')) {
     // decrease button has clicked
@@ -164,5 +232,8 @@ elements.recipe.addEventListener('click', e => {
   } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
     // add to shopping list button has clicked
     listControl();
+  } else if (e.target.matches('.recipe__love, .recipe__love *')) {
+    // like button has clicked
+    likeControl();
   }
 });

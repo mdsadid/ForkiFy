@@ -18,7 +18,7 @@ export const highlightSelected = id => {
     recipe.classList.remove('results__link--active');
   });
   
-  document.querySelector(`a[href="#${id}"]`).classList.add('results__link--active');
+  document.querySelector(`.results__link[href="#${id}"]`).classList.add('results__link--active');
 };
 
 /**
@@ -31,8 +31,10 @@ export const highlightSelected = id => {
  * acc: 9 / acc + cur.length = 15 / True / newTitle = ['Pizza', 'with', 'tomato']
  * acc: 15 / acc + cur.length = 18 / False / newTitle = ['Pizza', 'with', 'tomato']
  * acc: 18 / acc + cur.length = 25 / False / newTitle = ['Pizza', 'with', 'tomato']
+ * 
+ * this limitRecipeTitle method has exported to LikeView file
  */
-const limitRecipeTitle = (title, limit = 18) => {
+export const limitRecipeTitle = (title, limit = 18) => {
   if(title.length > limit) {
     const newTitle = [];
     /**
