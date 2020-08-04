@@ -14,18 +14,19 @@ const formatCount = count => {
      * so that, i can use the split method to split the count and then i am going to use
      * map method to convert it int from string. because, count must have to be integer.
     */
-    const [int, dec] = count.toString().split('.').map(item => parseInt(item, 10));
+    const newCount = Math.round(count * 10) / 10;
+    const [int, dec] = newCount.toString().split('.').map(item => parseInt(item, 10));
 
-    // ex: if count = 2 then it will return the count.
-    if(!dec) return count;
+    // ex: if newCount = 2 then it will return the newCount.
+    if (!dec) return newCount;
 
     if(int === 0) {
-      // ex: count = 0.5 -> 1/2
-      const fr = new Fraction(count);
+      // ex: newCount = 0.5 -> 1/2
+      const fr = new Fraction(newCount);
       return `${fr.numerator}/${fr.denominator}`;
     } else {
-      // ex: count = 2.5 -> 2 (1/2). here i have to only manipulate 0.5
-      const fr = new Fraction(count - int);
+      // ex: newCount = 2.5 -> 2 (1/2). here i have to only manipulate 0.5
+      const fr = new Fraction(newCount - int);
       return `${int} ${fr.numerator}/${fr.denominator}`;
     }
   }

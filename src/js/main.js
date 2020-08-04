@@ -22,7 +22,6 @@ import { elements, renderLoader, clearLoader } from './base';
  * - Liked Receipes
 */
 const state = {};
-window.state = state;
 
 
 /**
